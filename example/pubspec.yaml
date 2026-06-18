@@ -1,0 +1,19 @@
+name: live_log_care_example
+description: Example app for live_log_care.
+publish_to: "none"
+version: 1.0.0
+
+environment:
+  sdk: ">=3.7.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  live_log_care:
+    path: ../
+  dio: ">=5.0.0 <6.0.0"
+  flutter_bloc: ">=8.1.0 <10.0.0"
+
+flutter:
+  uses-material-design: true

@@ -1,0 +1,34 @@
+name: live_log_care
+description: >-
+  Redaction-safe logging for Flutter: build-mode gated (silent in release) and
+  auto-scrubs passwords, tokens, cookies, OTPs and PII from logs, Dio and Bloc.
+version: 1.0.0
+
+repository: https://github.com/eiido/live_log_care
+issue_tracker: https://github.com/eiido/live_log_care/issues
+
+topics:
+  - logging
+  - logger
+  - security
+  - redaction
+  - dio
+
+environment:
+  sdk: ">=3.7.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Broad ranges so consuming apps keep their own pinned versions.
+  logger: ">=2.0.0 <3.0.0"
+  dio: ">=5.0.0 <6.0.0"
+  flutter_bloc: ">=8.1.0 <10.0.0"
+
+dev_dependencies:
+  flutter_lints: ">=4.0.0 <6.0.0"
+  flutter_test:
+    sdk: flutter
+
+flutter:
