@@ -20,6 +20,7 @@ class LiveLogConfig {
     this.output,
     this.crashSink,
     this.redactionEnabled = true,
+    this.revealSecretsInDebug = false,
   });
 
   /// Preset for clean, copy-friendly output: `Map`/`Iterable` messages render
@@ -36,6 +37,7 @@ class LiveLogConfig {
     LogLevel releaseLevel = LogLevel.warning,
     CrashSink? crashSink,
     bool redactionEnabled = true,
+    bool revealSecretsInDebug = false,
   }) => LiveLogConfig(
     enabled: enabled,
     debugLevel: debugLevel,
@@ -44,6 +46,7 @@ class LiveLogConfig {
     output: const DevLogOutput(),
     crashSink: crashSink,
     redactionEnabled: redactionEnabled,
+    revealSecretsInDebug: revealSecretsInDebug,
   );
 
   /// Master switch. When `false`, nothing is logged in any build.
@@ -73,6 +76,14 @@ class LiveLogConfig {
   /// Whether messages pass through [LogRedactor] before logging. Strongly
   /// recommended to leave enabled.
   final bool redactionEnabled;
+
+  /// Reveal real secret values in **debug builds only**, to aid local
+  /// debugging. Release builds are **always** redacted regardless — this flag
+  /// has no effect when `kReleaseMode` is true.
+  ///
+  /// Defaults to `false`: the safe path stays the default. Turn it on only on
+  /// your own machine; never rely on it for anything that ships.
+  final bool revealSecretsInDebug;
 }
 
 /// Centralized, redaction-safe logging facade.
@@ -123,8 +134,24 @@ abstract final class LiveLog {
     if (config.crashSink != null) crashSink = config.crashSink;
   }
 
+  /// Whether redaction is currently in effect for this build.
+  ///
+  /// `false` only when redaction is fully disabled
+  /// ([LiveLogConfig.redactionEnabled] is `false`), or when
+  /// [LiveLogConfig.revealSecretsInDebug] is set **and** this is a debug build.
+  /// Always `true` in release unless redaction is fully disabled — so secrets
+  /// can never be revealed in a release build via the debug-reveal flag.
+  ///
+  /// [RedactingDioInterceptor] reads this so the same rule applies to network
+  /// logs.
+  static bool get redactionActive {
+    if (!_config.redactionEnabled) return false;
+    if (kDebugMode && _config.revealSecretsInDebug) return false;
+    return true;
+  }
+
   static Object? _r(Object? message) =>
-      _config.redactionEnabled ? LogRedactor.redact(message) : message;
+      redactionActive ? LogRedactor.redact(message) : message;
 
   static void _emit(
     LogLevel level,

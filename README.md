@@ -114,6 +114,7 @@ LiveLog.configure(
     // output: DevLogOutput(),    // or ConsoleOutput() (default), MultiOutput, FileOutput
     // filter: MyFilter(),        // custom gating; default is a ThresholdFilter
     // redactionEnabled: true,    // (default) never turn this off in production
+    // revealSecretsInDebug: true,// see real secrets locally; release stays redacted
   ),
 );
 
@@ -149,6 +150,11 @@ Values: `Bearer <token>` and JWTs anywhere in a string. Add your own with
 
 > Redaction reduces risk; it is not a guarantee for arbitrarily-shaped data. Keep
 > debug network logging out of release for anything highly sensitive (the default).
+
+Need to inspect a real secret value while debugging locally? Set
+`revealSecretsInDebug: true`. It un-masks values **in debug builds only** —
+release builds are always redacted regardless, so it's safe to leave a peek on
+during development without risking a production leak. Defaults to `false`.
 
 ## License
 

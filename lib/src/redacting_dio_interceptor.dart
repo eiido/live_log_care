@@ -25,13 +25,23 @@ class RedactingDioInterceptor extends Interceptor {
 
   bool get _active => kDebugMode || logInRelease;
 
-  String _headers(Map<String, dynamic> headers) =>
-      prettyJson
-          ? LogRedactor.redactJson(headers)
-          : LogRedactor.redactHeaders(headers);
+  String _headers(Map<String, dynamic> headers) {
+    if (!LiveLog.redactionActive) {
+      return prettyJson ? LogRedactor.prettyJson(headers) : headers.toString();
+    }
+    return prettyJson
+        ? LogRedactor.redactJson(headers)
+        : LogRedactor.redactHeaders(headers);
+  }
 
-  String _body(Object? data) =>
-      prettyJson ? LogRedactor.redactJson(data) : LogRedactor.redactBody(data);
+  String _body(Object? data) {
+    if (!LiveLog.redactionActive) {
+      return prettyJson ? LogRedactor.prettyJson(data) : data.toString();
+    }
+    return prettyJson
+        ? LogRedactor.redactJson(data)
+        : LogRedactor.redactBody(data);
+  }
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {

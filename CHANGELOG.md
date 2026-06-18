@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.1.0
+
+### Added
+
+- `LiveLogConfig.revealSecretsInDebug` (default `false`): reveal real secret
+  values in **debug builds only** to aid local debugging. Release builds are
+  always redacted regardless of this flag. Exposed as `LiveLog.redactionActive`.
+
+### Changed
+
+- `RedactingDioInterceptor` now honors the redaction state
+  (`redactionEnabled` / `revealSecretsInDebug`) like `LiveLog` does. Previously
+  it always redacted; now `redactionEnabled: false` (or a debug reveal) also
+  applies to network logs. No effect with the default (redaction on).
+
 ## 2.0.0
 
 ### Breaking

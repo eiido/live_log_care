@@ -24,5 +24,21 @@ void main() {
       LiveLog.configure(const LiveLogConfig(enabled: false));
       expect(() => LiveLog.w('quiet'), returnsNormally);
     });
+
+    test('redaction is active by default', () {
+      LiveLog.configure(const LiveLogConfig());
+      expect(LiveLog.redactionActive, isTrue);
+    });
+
+    test('revealSecretsInDebug disables redaction in debug builds', () {
+      // Tests run in debug mode (kDebugMode == true).
+      LiveLog.configure(const LiveLogConfig(revealSecretsInDebug: true));
+      expect(LiveLog.redactionActive, isFalse);
+    });
+
+    test('redactionEnabled:false disables redaction entirely', () {
+      LiveLog.configure(const LiveLogConfig(redactionEnabled: false));
+      expect(LiveLog.redactionActive, isFalse);
+    });
   });
 }
