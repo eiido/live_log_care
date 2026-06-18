@@ -5,7 +5,9 @@ import 'package:live_log_care/live_log_care.dart';
 
 void main() {
   // 1) Configure once (optional — secure defaults apply without this).
-  LiveLog.configure(const LiveLogConfig(releaseLevel: LogLevel.error));
+  //    `.clean()` gives prefix-free, indented-JSON output (great for the
+  //    VS Code Debug Console). Drop it for the default boxed PrettyPrinter.
+  LiveLog.configure(LiveLogConfig.clean(releaseLevel: LogLevel.error));
 
   // 2) Teach the redactor about app-specific secrets.
   LogRedactor.addSensitiveKeys(['iban', 'card_holder']);
@@ -14,7 +16,9 @@ void main() {
   Bloc.observer = LiveLogBlocObserver();
 
   // 4) Use a redaction-safe Dio logger instead of a raw one.
-  final dio = Dio()..interceptors.add(RedactingDioInterceptor());
+  //    `prettyJson: true` renders request/response bodies as indented JSON.
+  final dio =
+      Dio()..interceptors.add(RedactingDioInterceptor(prettyJson: true));
 
   LiveLog.i('app started');
   // The password is masked automatically:

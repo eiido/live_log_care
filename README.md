@@ -54,7 +54,34 @@ LiveLog.d({'login': 'a@b.com', 'password': 'hunter2'});
 final dio = Dio()..interceptors.add(RedactingDioInterceptor());
 // debug-only by default; opt into redacted release logging:
 // RedactingDioInterceptor(logInRelease: true)
+// render bodies/headers as indented JSON instead of Map.toString():
+// RedactingDioInterceptor(prettyJson: true)
 ```
+
+### Clean, copy-friendly output
+
+By default logs use `logger`'s boxed `PrettyPrinter`, and on Android each line is
+tagged with the `I/flutter (PID):` prefix that the OS log layer adds. For output
+that reads as real JSON and copies cleanly — no box, and no prefix in the
+**VS Code Debug Console** — opt into the `clean()` preset:
+
+```dart
+LiveLog.configure(LiveLogConfig.clean());
+final dio = Dio()..interceptors.add(RedactingDioInterceptor(prettyJson: true));
+
+LiveLog.d({'id': 6, 'name': 'Test Qard', 'national_id': '123'});
+// [D] {
+//   "id": 6,
+//   "name": "Test Qard",
+//   "national_id": "***REDACTED***"
+// }
+```
+
+`clean()` swaps in `CleanPrinter` (no border, no ANSI colors) and `DevLogOutput`
+(routes through `dart:developer.log`, so the Debug Console shows each entry as a
+single, prefix-free, copyable block). Redaction still runs first. All other
+secure defaults apply; override them via `clean()`'s parameters, or wire
+`CleanPrinter`/`DevLogOutput` into `LiveLogConfig` yourself.
 
 ### Bloc
 
@@ -83,7 +110,9 @@ LiveLog.configure(
   const LiveLogConfig(
     releaseLevel: LogLevel.error, // even quieter in release
     // enabled: false,            // kill switch
-    // printer: MyPrinter(),
+    // printer: CleanPrinter(),   // or BoxedPrinter() (default), or your own
+    // output: DevLogOutput(),    // or ConsoleOutput() (default), MultiOutput, FileOutput
+    // filter: MyFilter(),        // custom gating; default is a ThresholdFilter
     // redactionEnabled: true,    // (default) never turn this off in production
   ),
 );
@@ -92,6 +121,19 @@ LiveLog.configure(
 LogRedactor.addSensitiveKeys(['iban', 'card_holder']);
 LogRedactor.addValuePatterns([RegExp(r'\b\d{16}\b')]); // bare 16-digit numbers
 LogRedactor.mask = '[hidden]';
+```
+
+The logging engine is self-contained — no third-party `logger` dependency.
+Compose your own pipeline from the bundled building blocks, or implement
+`LogPrinter` / `LogOutput` / `LogFilter` yourself:
+
+```dart
+// Console + a rotating file, both fed the same redacted, gated stream:
+LiveLog.configure(
+  LiveLogConfig(
+    output: MultiOutput([const ConsoleOutput(), FileOutput('app.log')]),
+  ),
+);
 ```
 
 ## What gets redacted by default

@@ -66,8 +66,7 @@ void main() {
     });
 
     test('does not over-redact ambiguous substrings (e.g. shipping)', () {
-      final out =
-          LogRedactor.redact({'shipping_address': '12 Main St'}) as Map;
+      final out = LogRedactor.redact({'shipping_address': '12 Main St'}) as Map;
       expect(out['shipping_address'], '12 Main St');
     });
 

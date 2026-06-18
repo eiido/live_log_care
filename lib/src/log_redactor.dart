@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 /// Scrubs sensitive values (passwords, tokens, cookies, OTPs, national IDs,
 /// auth headers, card numbers, ...) out of anything before it is logged.
 ///
@@ -21,15 +23,39 @@ abstract final class LogRedactor {
   /// Curated to avoid common false positives — short/ambiguous tokens such as a
   /// bare `pin` are intentionally excluded; add them yourself if you need them.
   static const Set<String> _defaultKeys = {
-    'password', 'passwd', 'passphrase', 'pwd',
-    'token', 'access_token', 'refresh_token', 'id_token', 'auth_token',
-    'authorization', 'bearer',
-    'cookie', 'set-cookie', 'session_id', 'sessionid', 'jsessionid',
+    'password',
+    'passwd',
+    'passphrase',
+    'pwd',
+    'token',
+    'access_token',
+    'refresh_token',
+    'id_token',
+    'auth_token',
+    'authorization',
+    'bearer',
+    'cookie',
+    'set-cookie',
+    'session_id',
+    'sessionid',
+    'jsessionid',
     'api_session',
-    'national_id', 'nationalid', 'national-id', 'ssn',
-    'otp', 'secret', 'client_secret',
-    'api_key', 'apikey', 'x-api-key', 'private_key',
-    'credit_card', 'card_number', 'cardnumber', 'cvv', 'cvc',
+    'national_id',
+    'nationalid',
+    'national-id',
+    'ssn',
+    'otp',
+    'secret',
+    'client_secret',
+    'api_key',
+    'apikey',
+    'x-api-key',
+    'private_key',
+    'credit_card',
+    'card_number',
+    'cardnumber',
+    'cvv',
+    'cvc',
   };
 
   static final Set<String> _extraKeys = <String>{};
@@ -80,6 +106,25 @@ abstract final class LogRedactor {
 
   /// Redact a request/response body and return a printable string.
   static String redactBody(Object? body) => redact(body).toString();
+
+  static final JsonEncoder _prettyEncoder = JsonEncoder.withIndent(
+    '  ',
+    (Object? o) => o.toString(),
+  );
+
+  /// Pretty-print [value] as indented JSON. Values JSON can't encode fall back
+  /// to their `toString()`. Does **not** redact — call [redact] first, or use
+  /// [redactJson], when the value may contain secrets.
+  static String prettyJson(Object? value) {
+    try {
+      return _prettyEncoder.convert(value);
+    } catch (_) {
+      return value.toString();
+    }
+  }
+
+  /// Redact [body] recursively, then pretty-print the result as indented JSON.
+  static String redactJson(Object? body) => prettyJson(redact(body));
 
   static Map<dynamic, dynamic> _redactMap(Map<dynamic, dynamic> source) {
     final result = <dynamic, dynamic>{};
