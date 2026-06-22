@@ -2,7 +2,7 @@ name: live_log_care
 description: >-
   Redaction-safe logging for Flutter: build-mode gated (silent in release) and
   auto-scrubs passwords, tokens, cookies, OTPs and PII from logs, Dio and Bloc.
-version: 2.1.0
+version: 2.2.0
 
 repository: https://github.com/eiido/live_log_care
 issue_tracker: https://github.com/eiido/live_log_care/issues

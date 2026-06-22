@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.2.0
+
+### Changed
+
+- `RedactingDioInterceptor` now defaults to `prettyJson: true`, so request and
+  response bodies render as indented JSON out of the box. Besides being
+  readable, the per-field line breaks stop the console from truncating long
+  single-line `Map.toString()` bodies. Pass `prettyJson: false` for the old
+  compact form.
+- **Security default change:** `LiveLogConfig.revealSecretsInDebug` now defaults
+  to `kDebugMode` (was `false`). Secret values are shown in **debug** logs by
+  default to aid local debugging; **release builds are still always redacted**,
+  guaranteed by the `kDebugMode` guard in `LiveLog.redactionActive`. If your
+  debug logs may be screenshotted, screen-shared, or captured in CI artifacts,
+  pass `revealSecretsInDebug: false` to restore full redaction in debug.
+
 ## 2.1.0
 
 ### Added

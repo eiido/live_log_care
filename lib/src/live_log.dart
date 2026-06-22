@@ -20,7 +20,7 @@ class LiveLogConfig {
     this.output,
     this.crashSink,
     this.redactionEnabled = true,
-    this.revealSecretsInDebug = false,
+    this.revealSecretsInDebug = kDebugMode,
   });
 
   /// Preset for clean, copy-friendly output: `Map`/`Iterable` messages render
@@ -29,15 +29,15 @@ class LiveLogConfig {
   /// `I/flutter (PID):` prefix in the VS Code Debug Console.
   ///
   /// All other secure defaults still apply; override any via the parameters.
-  /// Pass [RedactingDioInterceptor]`(prettyJson: true)` for matching network
-  /// logs.
+  /// [RedactingDioInterceptor] renders network bodies as indented JSON by
+  /// default, so it already matches this preset.
   factory LiveLogConfig.clean({
     bool enabled = true,
     LogLevel debugLevel = LogLevel.trace,
     LogLevel releaseLevel = LogLevel.warning,
     CrashSink? crashSink,
     bool redactionEnabled = true,
-    bool revealSecretsInDebug = false,
+    bool revealSecretsInDebug = kDebugMode,
   }) => LiveLogConfig(
     enabled: enabled,
     debugLevel: debugLevel,
@@ -81,8 +81,11 @@ class LiveLogConfig {
   /// debugging. Release builds are **always** redacted regardless — this flag
   /// has no effect when `kReleaseMode` is true.
   ///
-  /// Defaults to `false`: the safe path stays the default. Turn it on only on
-  /// your own machine; never rely on it for anything that ships.
+  /// Defaults to [kDebugMode]: real values are shown while you develop and
+  /// **always** redacted in anything you ship (the `kDebugMode` guard in
+  /// [LiveLog.redactionActive] makes this byte-for-byte safe in release). Set
+  /// `false` to redact in debug too — recommended when your debug logs may be
+  /// screenshotted, screen-shared, or captured in CI artifacts.
   final bool revealSecretsInDebug;
 }
 

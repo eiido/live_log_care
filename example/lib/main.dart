@@ -15,10 +15,9 @@ void main() {
   // 3) Route Bloc/Cubit events through LiveLog.
   Bloc.observer = LiveLogBlocObserver();
 
-  // 4) Use a redaction-safe Dio logger instead of a raw one.
-  //    `prettyJson: true` renders request/response bodies as indented JSON.
-  final dio =
-      Dio()..interceptors.add(RedactingDioInterceptor(prettyJson: true));
+  // 4) Use a redaction-safe Dio logger instead of a raw one. Bodies render as
+  //    indented JSON by default (pass `prettyJson: false` for compact output).
+  final dio = Dio()..interceptors.add(RedactingDioInterceptor());
 
   LiveLog.i('app started');
   // The password is masked automatically:

@@ -52,10 +52,11 @@ LiveLog.d({'login': 'a@b.com', 'password': 'hunter2'});
 
 ```dart
 final dio = Dio()..interceptors.add(RedactingDioInterceptor());
+// Bodies/headers render as indented JSON by default — split across lines, so the
+// console can't truncate one long line. For compact Map.toString():
+// RedactingDioInterceptor(prettyJson: false)
 // debug-only by default; opt into redacted release logging:
 // RedactingDioInterceptor(logInRelease: true)
-// render bodies/headers as indented JSON instead of Map.toString():
-// RedactingDioInterceptor(prettyJson: true)
 ```
 
 ### Clean, copy-friendly output
@@ -67,7 +68,7 @@ that reads as real JSON and copies cleanly — no box, and no prefix in the
 
 ```dart
 LiveLog.configure(LiveLogConfig.clean());
-final dio = Dio()..interceptors.add(RedactingDioInterceptor(prettyJson: true));
+final dio = Dio()..interceptors.add(RedactingDioInterceptor());
 
 LiveLog.d({'id': 6, 'name': 'Test Qard', 'national_id': '123'});
 // [D] {
@@ -114,7 +115,7 @@ LiveLog.configure(
     // output: DevLogOutput(),    // or ConsoleOutput() (default), MultiOutput, FileOutput
     // filter: MyFilter(),        // custom gating; default is a ThresholdFilter
     // redactionEnabled: true,    // (default) never turn this off in production
-    // revealSecretsInDebug: true,// see real secrets locally; release stays redacted
+    // revealSecretsInDebug: false,// redact in debug too (defaults to kDebugMode; release always redacted)
   ),
 );
 
@@ -151,10 +152,12 @@ Values: `Bearer <token>` and JWTs anywhere in a string. Add your own with
 > Redaction reduces risk; it is not a guarantee for arbitrarily-shaped data. Keep
 > debug network logging out of release for anything highly sensitive (the default).
 
-Need to inspect a real secret value while debugging locally? Set
-`revealSecretsInDebug: true`. It un-masks values **in debug builds only** —
-release builds are always redacted regardless, so it's safe to leave a peek on
-during development without risking a production leak. Defaults to `false`.
+Real secret values are shown while debugging locally **by default** —
+`revealSecretsInDebug` defaults to `kDebugMode`, so values are un-masked **in
+debug builds only**; release builds are always redacted regardless, so there's
+no production-leak risk. To redact in debug too — recommended if your debug logs
+may be screenshotted, screen-shared, or captured in CI — set
+`revealSecretsInDebug: false`.
 
 ## License
 

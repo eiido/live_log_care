@@ -13,14 +13,16 @@ import 'log_redactor.dart';
 /// dio.interceptors.add(RedactingDioInterceptor());
 /// ```
 class RedactingDioInterceptor extends Interceptor {
-  RedactingDioInterceptor({this.logInRelease = false, this.prettyJson = false});
+  RedactingDioInterceptor({this.logInRelease = false, this.prettyJson = true});
 
   /// When `true`, requests are also logged (still redacted) in release builds.
   /// Defaults to `false` — network logs are debug-only.
   final bool logInRelease;
 
-  /// When `true`, headers and bodies are rendered as indented JSON instead of
-  /// Dart's `Map.toString()`. Pairs with `LiveLogConfig.clean()`.
+  /// Render headers and bodies as indented JSON instead of Dart's single-line
+  /// `Map.toString()`. Defaults to `true`: besides being readable, the per-field
+  /// line breaks stop the console from truncating a long single-line body. Set
+  /// `false` for the compact `Map.toString()` form.
   final bool prettyJson;
 
   bool get _active => kDebugMode || logInRelease;
